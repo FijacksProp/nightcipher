@@ -31,7 +31,7 @@ Legend: [ ] todo  |  [~] in progress  |  [x] done
 ## 2) Environment & Repo Setup
 - [x] Create virtualenv + install dependencies
 - [ ] Add `.env` support (python-dotenv or django-environ)
-- [ ] Add `.gitignore` for Python/Django/Node
+- [x] Add `.gitignore` for Python/Django/Node
 - [x] Initialize Django project + `journal` app
 - [ ] Configure Postgres local DB
 - [x] Configure static + media files
@@ -55,9 +55,9 @@ Legend: [ ] todo  |  [~] in progress  |  [x] done
 ---
 
 ## 4) Admin + Basic UX
-- [ ] Register all models in Django admin
+- [x] Register all models in Django admin
 - [ ] Add search + filters in admin
-- [ ] Create minimal UI layout (header, nav, container)
+- [x] Create minimal UI layout (header, nav, container)
 - [ ] Auth pages: login, logout, register
 
 ---
