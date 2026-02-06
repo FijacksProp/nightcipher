@@ -1,0 +1,140 @@
+{% extends "journal/base.html" %}
+
+{% block content %}
+  <section class="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+    <div class="space-y-6">
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-8 nc-glow">
+        <div class="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.4em] text-slate-400">New dream</p>
+            <h1 class="nc-title mt-4 text-3xl text-white sm:text-4xl">
+              Capture the dream while it’s fresh.
+            </h1>
+            <p class="mt-4 max-w-xl text-sm leading-relaxed text-slate-300">
+              Add your narrative, emotions, and symbols to get the best interpretation.
+            </p>
+          </div>
+          <a class="text-xs uppercase tracking-[0.3em] text-slate-400 hover:text-white" href="/dreams/">
+            Back to journal
+          </a>
+        </div>
+        <form class="mt-8 space-y-5" method="post">
+          {% csrf_token %}
+          <div class="grid gap-4 sm:grid-cols-2">
+            <input
+              class="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+              name="title"
+              placeholder="Dream title"
+              value="{{ form.title.value|default_if_none:'' }}"
+              required
+            />
+            <input
+              class="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+              name="date_dreamed"
+              type="date"
+              value="{{ form.date_dreamed.value|default_if_none:'' }}"
+              required
+            />
+          </div>
+          <textarea
+            class="h-48 w-full resize-none rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-4 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+            name="narrative"
+            placeholder="Write everything you remember..."
+            required
+          >{{ form.narrative.value|default_if_none:'' }}</textarea>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <input
+              class="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+              name="emotions_input"
+              placeholder="Emotions (comma separated)"
+              value="{{ form.emotions_input.value|default_if_none:'' }}"
+            />
+            <input
+              class="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+              name="symbols_input"
+              placeholder="Symbols (comma separated)"
+              value="{{ form.symbols_input.value|default_if_none:'' }}"
+            />
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <input
+              class="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+              name="people_input"
+              placeholder="People"
+              value="{{ form.people_input.value|default_if_none:'' }}"
+            />
+            <input
+              class="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+              name="settings_input"
+              placeholder="Settings"
+              value="{{ form.settings_input.value|default_if_none:'' }}"
+            />
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2">
+            <input
+              class="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+              name="mood_rating"
+              type="number"
+              min="1"
+              max="10"
+              placeholder="Mood rating (1-10)"
+              value="{{ form.mood_rating.value|default_if_none:'' }}"
+            />
+            <select
+              class="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+              name="privacy"
+            >
+              {% for value, label in form.fields.privacy.choices %}
+                <option value="{{ value }}" {% if form.privacy.value == value %}selected{% endif %}>
+                  {{ label }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="grid gap-4">
+            <input
+              class="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+              name="tags_input"
+              placeholder="Tags (comma separated)"
+              value="{{ form.tags_input.value|default_if_none:'' }}"
+            />
+          </div>
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+              <span class="rounded-full border border-white/10 px-3 py-1">Private</span>
+              <span class="rounded-full border border-white/10 px-3 py-1">Unlisted</span>
+              <span class="rounded-full border border-white/10 px-3 py-1">Public</span>
+            </div>
+            <button class="w-full rounded-full bg-cyan-400/90 px-6 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-900 transition hover:bg-cyan-300 sm:w-auto">
+              Save dream
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="space-y-6">
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Tips</p>
+        <ul class="mt-4 space-y-3 text-sm text-slate-300">
+          <li>Write in present tense to capture emotion.</li>
+          <li>Note colors, places, and people.</li>
+          <li>Include any waking feelings.</li>
+        </ul>
+      </div>
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Interpretation lens</p>
+        <div class="mt-4 grid gap-3 text-sm text-slate-300">
+          <button class="rounded-2xl border border-white/10 px-4 py-2 text-xs uppercase tracking-[0.3em] text-slate-300 transition hover:border-white/30">
+            Balanced
+          </button>
+          <button class="rounded-2xl border border-white/10 px-4 py-2 text-xs uppercase tracking-[0.3em] text-slate-300 transition hover:border-white/30">
+            Psychology
+          </button>
+          <button class="rounded-2xl border border-white/10 px-4 py-2 text-xs uppercase tracking-[0.3em] text-slate-300 transition hover:border-white/30">
+            Spiritual
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

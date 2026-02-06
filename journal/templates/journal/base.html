@@ -4,20 +4,234 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>NightCipher</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Newsreader:opsz,wght@6..72,500;600&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <style>
+      :root {
+        --nc-bg: #08090d;
+        --nc-panel: rgba(18, 22, 32, 0.86);
+        --nc-border: rgba(148, 163, 184, 0.12);
+        --nc-accent: #6ee7ff;
+        --nc-accent-2: #a855f7;
+        --nc-text: #e2e8f0;
+        --cursor-x: 50%;
+        --cursor-y: 50%;
+      }
+
+      body {
+        font-family: "Manrope", system-ui, sans-serif;
+      }
+
+      .nc-title {
+        font-family: "Newsreader", serif;
+        letter-spacing: 0.02em;
+      }
+
+      .nc-grid {
+        background-image: radial-gradient(
+            circle at 1px 1px,
+            rgba(148, 163, 184, 0.15) 1px,
+            transparent 0
+          ),
+          radial-gradient(
+            circle at 1px 1px,
+            rgba(148, 163, 184, 0.08) 1px,
+            transparent 0
+          );
+        background-size: 28px 28px, 120px 120px;
+        background-position: -8px -8px, -40px -40px;
+      }
+
+      .nc-aurora {
+        background: radial-gradient(
+            800px circle at 10% 10%,
+            rgba(94, 234, 212, 0.15),
+            transparent 55%
+          ),
+          radial-gradient(
+            700px circle at 90% 20%,
+            rgba(167, 139, 250, 0.18),
+            transparent 55%
+          ),
+          radial-gradient(
+            600px circle at 50% 90%,
+            rgba(56, 189, 248, 0.12),
+            transparent 60%
+          );
+        filter: blur(10px);
+        opacity: 0.9;
+        animation: auroraShift 24s ease-in-out infinite;
+      }
+
+      .nc-cursor-glow {
+        background: radial-gradient(
+          420px circle at var(--cursor-x) var(--cursor-y),
+          rgba(34, 211, 238, 0.12),
+          transparent 60%
+        );
+        opacity: 0.8;
+        transition: opacity 0.4s ease;
+      }
+
+      .nc-noise {
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+        mix-blend-mode: soft-light;
+        opacity: 0.2;
+        animation: noiseShift 2.5s steps(2, end) infinite;
+      }
+
+      .nc-orb {
+        filter: blur(0px);
+        opacity: 0.9;
+        animation: floatOrb 18s ease-in-out infinite;
+      }
+
+      .nc-orb.delay {
+        animation-delay: -6s;
+      }
+
+      .nc-orb.delay-2 {
+        animation-delay: -12s;
+      }
+
+      @keyframes floatOrb {
+        0% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+        50% {
+          transform: translate3d(30px, -40px, 0) scale(1.05);
+        }
+        100% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+      }
+
+      @keyframes auroraShift {
+        0% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+        33% {
+          transform: translate3d(-40px, 20px, 0) scale(1.05);
+        }
+        66% {
+          transform: translate3d(30px, -30px, 0) scale(1.08);
+        }
+        100% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+      }
+
+      @keyframes noiseShift {
+        0% {
+          transform: translate3d(0, 0, 0);
+        }
+        50% {
+          transform: translate3d(-10px, 8px, 0);
+        }
+        100% {
+          transform: translate3d(0, 0, 0);
+        }
+      }
+
+      .nc-glow {
+        box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.08),
+          0 24px 70px rgba(15, 23, 42, 0.5);
+      }
+
+      .nc-motion-off * {
+        animation: none !important;
+        transition: none !important;
+      }
+    </style>
   </head>
   <body class="min-h-screen bg-slate-950 text-slate-100">
-    <header class="border-b border-slate-800">
-      <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <span class="text-lg font-semibold tracking-wide">NightCipher</span>
-        <nav class="text-sm text-slate-300">
-          <a class="hover:text-white" href="/">Home</a>
-        </nav>
+    <main class="relative min-h-screen overflow-hidden bg-[#08090d]">
+      <div class="absolute inset-0 nc-grid"></div>
+      <div class="absolute inset-0 nc-cursor-glow"></div>
+      <div class="absolute inset-0 nc-aurora"></div>
+      <div class="absolute inset-0 nc-noise"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#08090d]/70"></div>
+      <div class="absolute -top-20 left-10 h-72 w-72 rounded-full bg-cyan-400/10 blur-3xl nc-orb"></div>
+      <div class="absolute top-40 right-20 h-96 w-96 rounded-full bg-fuchsia-500/10 blur-3xl nc-orb delay"></div>
+      <div class="absolute bottom-10 left-1/3 h-80 w-80 rounded-full bg-sky-500/10 blur-3xl nc-orb delay-2"></div>
+      <div class="relative mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-10" id="nc-shell">
+        <header class="flex flex-col gap-6 text-sm text-slate-300 md:flex-row md:items-center md:justify-between">
+          <div class="flex items-center justify-between gap-3">
+            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-lg">
+              ✦
+            </span>
+            <div>
+              <p class="text-xs uppercase tracking-[0.4em] text-slate-400">NightCipher</p>
+              <p class="nc-title text-lg text-white">Dream Journal AI</p>
+            </div>
+            <button
+              class="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-white md:hidden"
+              type="button"
+              data-nav-toggle
+              aria-label="Toggle navigation"
+              aria-expanded="false"
+            >
+              ☰
+            </button>
+          </div>
+          <nav
+            class="hidden flex-col gap-3 text-xs uppercase tracking-[0.3em] text-slate-400 md:flex md:flex-row md:items-center md:gap-4 md:text-sm md:tracking-[0.35em]"
+            data-nav
+          >
+            <a class="transition hover:text-white" href="/">Chat</a>
+            <a class="transition hover:text-white" href="/community/">Community</a>
+            <a class="transition hover:text-white" href="/dreams/">Dreams</a>
+            {% if request.user.is_authenticated %}
+              <a class="transition hover:text-white" href="/logout/">Logout</a>
+            {% else %}
+              <a class="transition hover:text-white" href="/login/">Login</a>
+            {% endif %}
+          </nav>
+        </header>
+        <div class="flex-1 py-10">
+          {% block content %}{% endblock %}
+        </div>
+        <footer class="flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-slate-500 md:flex-row md:items-center md:justify-between">
+          <span>Interpretations are reflective, not clinical guidance.</span>
+          <span>NightCipher © 2026</span>
+        </footer>
       </div>
-    </header>
-    <main class="mx-auto max-w-5xl px-6 py-10">
-      {% block content %}{% endblock %}
     </main>
+    <script>
+      (() => {
+        const shell = document.getElementById("nc-shell");
+        const root = document.documentElement;
+        const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+        const apply = () => {
+          root.classList.toggle("nc-motion-off", media.matches);
+        };
+        apply();
+        media.addEventListener("change", apply);
+        const toggle = document.querySelector("[data-nav-toggle]");
+        const nav = document.querySelector("[data-nav]");
+        if (toggle && nav) {
+          toggle.addEventListener("click", () => {
+            const isOpen = nav.classList.toggle("hidden");
+            toggle.setAttribute("aria-expanded", (!isOpen).toString());
+          });
+        }
+        if (!shell) {
+          return;
+        }
+        window.addEventListener("pointermove", (event) => {
+          const { clientX, clientY } = event;
+          const x = Math.round((clientX / window.innerWidth) * 100);
+          const y = Math.round((clientY / window.innerHeight) * 100);
+          shell.style.setProperty("--cursor-x", `${x}%`);
+          shell.style.setProperty("--cursor-y", `${y}%`);
+        });
+      })();
+    </script>
   </body>
 </html>

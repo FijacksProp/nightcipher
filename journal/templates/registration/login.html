@@ -1,0 +1,35 @@
+{% extends "journal/base.html" %}
+
+{% block content %}
+  <section class="mx-auto w-full max-w-xl">
+    <div class="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-8 nc-glow">
+      <div class="space-y-3">
+        <p class="text-xs uppercase tracking-[0.4em] text-slate-400">Welcome back</p>
+        <h1 class="nc-title text-3xl text-white">Sign in to NightCipher</h1>
+        <p class="text-sm text-slate-300">Continue your dream journal and community reflections.</p>
+      </div>
+      <form class="mt-8 space-y-5" method="post">
+        {% csrf_token %}
+        <input
+          class="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+          name="username"
+          placeholder="Username"
+          required
+        />
+        <input
+          class="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
+          name="password"
+          placeholder="Password"
+          type="password"
+          required
+        />
+        <button class="w-full rounded-full bg-cyan-400/90 px-6 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-900 transition hover:bg-cyan-300">
+          Sign in
+        </button>
+      </form>
+      <p class="mt-6 text-xs text-slate-400">
+        New here? <a class="text-cyan-200 hover:text-cyan-100" href="/register/">Create an account</a>.
+      </p>
+    </div>
+  </section>
+{% endblock %}
