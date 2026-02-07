@@ -179,3 +179,27 @@ class ClarifyingQuestion(models.Model):
 
     def __str__(self) -> str:
         return f"Q for {self.dream.title}"
+
+
+class DreamMessage(models.Model):
+    ROLE_USER = "user"
+    ROLE_ASSISTANT = "assistant"
+    ROLE_CHOICES = [
+        (ROLE_USER, "User"),
+        (ROLE_ASSISTANT, "Assistant"),
+    ]
+
+    dream = models.ForeignKey(
+        DreamEntry,
+        on_delete=models.CASCADE,
+        related_name="messages",
+    )
+    role = models.CharField(max_length=16, choices=ROLE_CHOICES)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self) -> str:
+        return f"{self.get_role_display()} message for {self.dream.title}"

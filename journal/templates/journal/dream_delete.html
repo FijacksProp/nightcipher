@@ -1,0 +1,24 @@
+{% extends "journal/base.html" %}
+
+{% block content %}
+  <section class="mx-auto w-full max-w-xl">
+    <div class="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-8 nc-glow">
+      <div class="space-y-3">
+        <p class="text-xs uppercase tracking-[0.4em] text-slate-400">Delete dream</p>
+        <h1 class="nc-title text-3xl text-white">Are you sure?</h1>
+        <p class="text-sm text-slate-300">
+          This will permanently delete “{{ entry.title }}”. This action cannot be undone.
+        </p>
+      </div>
+      <form class="mt-8 space-y-4" method="post">
+        {% csrf_token %}
+        <button class="w-full rounded-full bg-rose-400/90 px-6 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-slate-900 transition hover:bg-rose-300">
+          Delete dream
+        </button>
+        <a class="block w-full rounded-full border border-white/10 px-6 py-3 text-center text-xs uppercase tracking-[0.3em] text-slate-300 transition hover:border-white/30" href="/dreams/{{ entry.id }}/">
+          Cancel
+        </a>
+      </form>
+    </div>
+  </section>
+{% endblock %}
