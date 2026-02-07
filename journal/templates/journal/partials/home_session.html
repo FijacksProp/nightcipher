@@ -1,0 +1,74 @@
+<div class="rounded-3xl border border-white/10 bg-white/5 p-6 nc-glow" id="home-session">
+  <div class="flex items-center justify-between">
+    <h2 class="text-sm uppercase tracking-[0.3em] text-slate-400">NightCipher</h2>
+    <span class="text-xs text-slate-500">
+      {% if latest_dream %}Session active{% else %}Idle{% endif %}
+    </span>
+  </div>
+  <div class="mt-6 space-y-4 text-sm text-slate-300">
+    {% if ai_error %}
+      <div class="rounded-2xl border border-rose-400/40 bg-rose-400/10 p-4 text-rose-100">
+        {{ ai_error }}
+      </div>
+    {% endif %}
+    {% if messages %}
+      {% for message in messages %}
+        {% if message.role == "assistant" %}
+          <div class="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+            <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Assistant</p>
+            <p class="mt-3 leading-relaxed">{{ message.content }}</p>
+          </div>
+        {% else %}
+          <div class="rounded-2xl border border-cyan-400/30 bg-cyan-500/10 p-4 text-slate-200 sm:ml-10">
+            <p class="text-xs uppercase tracking-[0.3em] text-cyan-200">You</p>
+            <p class="mt-3 leading-relaxed">{{ message.content }}</p>
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <div class="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
+        <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Assistant</p>
+        <p class="mt-3 leading-relaxed">
+          Share your dream and click interpret to start a live session.
+        </p>
+      </div>
+    {% endif %}
+  </div>
+  {% if latest_dream %}
+    <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <a
+        class="w-full rounded-2xl border border-cyan-400/40 bg-cyan-400/20 px-4 py-3 text-center text-xs font-semibold uppercase tracking-[0.3em] text-cyan-100 transition hover:bg-cyan-400/30 sm:w-auto"
+        href="/dreams/{{ latest_dream.id }}/"
+      >
+        Open dream session
+      </a>
+    </div>
+  {% endif %}
+</div>
+
+<div id="interpretation-cards" hx-swap-oob="true" class="grid gap-6 md:grid-cols-2">
+  <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Psychology</p>
+    <p class="mt-3 text-sm text-slate-300">
+      {% for item in interpretations %}
+        {% if item.angle == "psych" %}
+          {{ item.summary }}
+        {% endif %}
+      {% empty %}
+        Highlight emotional patterns, memory traces, and subconscious themes.
+      {% endfor %}
+    </p>
+  </div>
+  <div class="rounded-2xl border border-white/10 bg-white/5 p-6">
+    <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Spiritual</p>
+    <p class="mt-3 text-sm text-slate-300">
+      {% for item in interpretations %}
+        {% if item.angle == "spiritual" %}
+          {{ item.summary }}
+        {% endif %}
+      {% empty %}
+        Explore symbolic meaning, archetypes, and intuitive direction.
+      {% endfor %}
+    </p>
+  </div>
+</div>

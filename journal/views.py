@@ -5,40 +5,69 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from .forms import DreamEntryForm
-from .models import DreamEntry, DreamMessage, Interpretation
+from .models import DreamEntry, DreamMessage, Interpretation, Symbol, Tag
+from .services import AIServiceError, dream_chat_reply, interpret_and_extract
 
 
 def home(request):
     latest_dream = None
     interpretations = []
     messages = []
+    ai_error = None
 
     if request.method == "POST":
         if not request.user.is_authenticated:
             return redirect("login")
         narrative = request.POST.get("narrative", "").strip()
         if narrative:
-            title = request.POST.get("title", "").strip() or "Untitled Dream"
+            try:
+                ai_data = interpret_and_extract(narrative)
+            except AIServiceError as exc:
+                ai_error = str(exc)
+                ai_data = {}
+
+            title = (ai_data.get("title") or "Untitled Dream").strip()
             entry = DreamEntry.objects.create(
                 user=request.user,
                 title=title,
                 narrative=narrative,
                 date_dreamed=timezone.localdate(),
+                emotions=ai_data.get("emotions") or [],
+                people=ai_data.get("people") or [],
+                settings=ai_data.get("settings") or [],
             )
+            psych_summary = ai_data.get("psych_summary") or "Psychological interpretation pending."
+            spiritual_summary = ai_data.get("spiritual_summary") or "Spiritual interpretation pending."
             Interpretation.objects.create(
                 dream=entry,
                 angle=Interpretation.ANGLE_PSYCH,
-                summary="Psychological interpretation will appear here.",
+                summary=psych_summary,
             )
             Interpretation.objects.create(
                 dream=entry,
                 angle=Interpretation.ANGLE_SPIRITUAL,
-                summary="Spiritual interpretation will appear here.",
+                summary=spiritual_summary,
+            )
+            tags = ai_data.get("tags") or []
+            if tags:
+                tag_objs = [Tag.objects.get_or_create(name=name)[0] for name in tags]
+                entry.tags.set(tag_objs)
+            symbols = ai_data.get("symbols") or []
+            if symbols:
+                symbol_objs = [
+                    Symbol.objects.get_or_create(
+                        name=name, defaults={"category": Symbol.CATEGORY_ABSTRACT}
+                    )[0]
+                    for name in symbols
+                ]
+                entry.symbols.set(symbol_objs)
+            followup = ai_data.get("followup_question") or (
+                "What emotion felt strongest in this dream?"
             )
             DreamMessage.objects.create(
                 dream=entry,
                 role=DreamMessage.ROLE_ASSISTANT,
-                content="Thanks for sharing. What emotion felt strongest in this dream?",
+                content=followup,
             )
             latest_dream = entry
 
@@ -51,15 +80,17 @@ def home(request):
         interpretations = list(latest_dream.interpretations.all())
         messages = list(latest_dream.messages.all())
 
-    return render(
-        request,
-        "journal/home.html",
-        {
-            "latest_dream": latest_dream,
-            "interpretations": interpretations,
-            "messages": messages,
-        },
-    )
+    context = {
+        "latest_dream": latest_dream,
+        "interpretations": interpretations,
+        "messages": messages,
+        "ai_error": ai_error,
+    }
+
+    if request.headers.get("HX-Request") == "true" and request.method == "POST":
+        return render(request, "journal/partials/home_session.html", context)
+
+    return render(request, "journal/home.html", context)
 
 
 def community(request):
@@ -95,10 +126,24 @@ def dream_detail(request, pk: int):
                 role=DreamMessage.ROLE_USER,
                 content=message,
             )
+            history = [
+                {"role": msg.role, "content": msg.content}
+                for msg in entry.messages.all().order_by("-created_at")[:8][::-1]
+            ]
+            try:
+                reply = dream_chat_reply(entry.narrative, history, message)
+            except AIServiceError as exc:
+                reply = f"AI unavailable: {exc}"
             DreamMessage.objects.create(
                 dream=entry,
                 role=DreamMessage.ROLE_ASSISTANT,
-                content="Thanks. I’ll incorporate that into your dream context.",
+                content=reply or "Thanks. I’ll incorporate that into your dream context.",
+            )
+        if request.headers.get("HX-Request") == "true":
+            return render(
+                request,
+                "journal/partials/dream_messages.html",
+                {"entry": entry},
             )
         return redirect("dream_detail", pk=entry.pk)
     return render(request, "journal/dream_detail.html", {"entry": entry})

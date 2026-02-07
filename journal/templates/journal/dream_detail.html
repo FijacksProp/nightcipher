@@ -108,28 +108,14 @@
       </div>
       <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
         <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Dream session</p>
-        <div class="mt-4 space-y-3 text-sm text-slate-300">
-          {% if entry.messages.all %}
-            {% for message in entry.messages.all %}
-              {% if message.role == "assistant" %}
-                <div class="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-                  <p class="text-xs uppercase tracking-[0.3em] text-slate-500">Assistant</p>
-                  <p class="mt-2">{{ message.content }}</p>
-                </div>
-              {% else %}
-                <div class="rounded-2xl border border-cyan-400/30 bg-cyan-500/10 p-4 text-slate-200">
-                  <p class="text-xs uppercase tracking-[0.3em] text-cyan-200">You</p>
-                  <p class="mt-2">{{ message.content }}</p>
-                </div>
-              {% endif %}
-            {% endfor %}
-          {% else %}
-            <div class="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-              <p class="mt-2">No session messages yet.</p>
-            </div>
-          {% endif %}
-        </div>
-        <form class="mt-4 flex flex-col gap-3" method="post">
+        {% include "journal/partials/dream_messages.html" %}
+        <form
+          class="mt-4 flex flex-col gap-3"
+          method="post"
+          hx-post="/dreams/{{ entry.id }}/"
+          hx-target="#dream-messages"
+          hx-swap="outerHTML"
+        >
           {% csrf_token %}
           <textarea
             class="h-24 w-full resize-none rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400/70"
